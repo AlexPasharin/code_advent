@@ -13,9 +13,11 @@ fn main() {
             .captures(line.trim())
             .expect("Could not extract dimensions");
 
-        let length = &capture_match[1].parse::<u32>().unwrap();
-        let width = &capture_match[2].parse::<u32>().unwrap();
-        let height = &capture_match[3].parse::<u32>().unwrap();
+        let get_capture_by_index = |index: usize| capture_match[index].parse::<u32>().unwrap(); // we assume every input line satisfies regex, so we can use unwrap "safely"
+
+        let length = get_capture_by_index(1);
+        let width = get_capture_by_index(2);
+        let height = get_capture_by_index(3);
 
         let side1 = length * width;
         let side2 = width * height;
@@ -24,7 +26,7 @@ fn main() {
         let side_areas = [side1, side2, side3];
 
         let total_area = 2 * side_areas.iter().sum::<u32>();
-        let smallest_side_area = side_areas.iter().min().unwrap();
+        let smallest_side_area = side_areas.iter().min().unwrap(); // we know that array is not empty, so extracting min must be safe
 
         result1 += total_area + smallest_side_area;
 
