@@ -5,6 +5,7 @@ fn main() {
     let re = Regex::new(r"^(turn on|turn off|toggle) (\d+),(\d+) through (\d+),(\d+)$").unwrap();
 
     const SIZE: usize = 1000;
+    // points vector contains pair, first pais is boolean if the light is on (according to part 1 setup), second is brightness (according to part 2 setup)
     let mut points = vec![[(false, 0usize); SIZE]; SIZE]; // cant use [[false; 1000]; 1000]; cause it will allocate on the stack, which will overflow for such a big array
 
     FileReader::process_lines("input.txt", &mut |line| {
@@ -30,19 +31,17 @@ fn main() {
             for y in y_min..=y_max {
                 let (light_on, amount_of_light) = points[x][y];
 
-                points[x][y] = if instruction_type == "turn on" {
-                    (true, amount_of_light + 1)
-                } else if instruction_type == "turn off" {
-                    (
+                points[x][y] = match instruction_type {
+                    "turn on" => (true, amount_of_light + 1),
+                    "turn off" => (
                         false,
                         if amount_of_light > 0 {
                             amount_of_light - 1
                         } else {
                             0
                         },
-                    )
-                } else {
-                    (!light_on, amount_of_light + 2)
+                    ),
+                    _ => (!light_on, amount_of_light + 2),
                 }
             }
         }
