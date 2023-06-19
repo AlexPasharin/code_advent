@@ -31,9 +31,9 @@ fn main() {
 
         let mut add_distance_to_map = |source: &str, destination: &str| {
             let value = distances
-                .entry(source.to_string())
+                .entry(String::from(source))
                 .or_insert_with(|| HashMap::new());
-            value.insert(destination.to_string(), distance)
+            value.insert(String::from(destination), distance)
         };
 
         // to keep logic simple, we put every distance in the map twice, since it can be travelled in both directions
@@ -61,21 +61,26 @@ fn main() {
             let distance = distances.get(source).unwrap().get(destination).unwrap();
 
             per_distance += distance;
+
+            // if we would only be interested in smallest distance (part 1), we could cut the calculations if distance gets too big here with following:
+            // if per_distance > smallest_distance {
+            //     break;
+            // }
         }
 
         smallest_distance = min(smallest_distance, per_distance); // 251
-        biggest_distance = max(biggest_distance, per_distance); // 898
+        biggest_distance = max(biggest_distance, per_distance); // 251
     }
 
     println!("Smallest distance: {}", smallest_distance);
     println!("Biggest distance: {}", biggest_distance);
 }
 
-// recurssive generates all permutations of a given vector of references
+// recurssively generates all permutations of a given vector of references
 
 fn generate_permutations_t<'a, T: PartialEq>(vec: &Vec<&'a T>) -> Vec<Vec<&'a T>> {
     if vec.len() == 1 {
-        return vec![vec![vec[0].clone()]];
+        return vec![vec![vec[0]]];
     }
 
     let mut result = Vec::new();

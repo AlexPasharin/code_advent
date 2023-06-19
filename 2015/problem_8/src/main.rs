@@ -13,6 +13,7 @@ fn main() {
     FileReader::process_lines("./input.txt", &mut |line| {
         let line = &double_quote_re.captures(line).unwrap()[1]; // by assumption every line starts and ends with "", we strip those away so that simple matching with \" later won't bring false positives (if line ends with \"")
 
+        // closure that counts how many times a given regex matches in a line
         let count_matches = |re: &Regex| -> usize { re.find_iter(line).count() };
 
         let escaped_backslash_amount = count_matches(&escaped_backslash_re);
