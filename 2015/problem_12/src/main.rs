@@ -1,6 +1,10 @@
+use serde_json::{self, de, Value};
+use std::fs::File;
+use std::io::BufReader;
 use utils::file_reader::FileReader;
 
 fn main() {
+    // First solution for part 1: ignore json aspect, parse input as text char by char low-level style
     let mut sum: i32 = 0;
     let mut current_number: i32 = 0;
     let mut current_number_is_negative = false;
@@ -31,5 +35,55 @@ fn main() {
         }
     });
 
-    println!("Sum of numbers in given json: {sum}");
+    println!("Sum of numbers in given json file, solution 1: {sum}"); // 119433
+
+    let file_reader = BufReader::new(File::open("./input.txt").unwrap());
+
+    let input_as_json = de::from_reader(file_reader).unwrap();
+
+    let mut part1_result = 0f64;
+    let mut part2_result = 0f64;
+
+    update_both_results(
+        &input_as_json,
+        &mut part1_result,
+        &mut Some(&mut part2_result), // a convoluted silly way to avoid repetitions in the code
+    );
+
+    println!("Sum of numbers in given json file, part 1, solution 2: {part1_result}"); // 119433
+    println!("Sum of numbers in given json file, part 2: {}", {
+        part2_result
+    }); // 68644
+}
+
+fn update_both_results(val: &Value, result1: &mut f64, result2: &mut Option<&mut f64>) -> () {
+    match val {
+        Value::Number(n) => {
+            let number = n.as_f64().unwrap();
+
+            *result1 += number;
+
+            if let Some(result_2_val) = result2 {
+                **result_2_val += number;
+            }
+        }
+        Value::Array(arr) => {
+            for el in arr {
+                update_both_results(el, result1, result2);
+            }
+        }
+        Value::Object(map) => {
+            let contains_red = map.values().into_iter().any(|k| k == "red");
+            let mut none = None;
+
+            for (_, value) in map {
+                update_both_results(
+                    value,
+                    result1,
+                    if contains_red { &mut none } else { result2 },
+                );
+            }
+        }
+        _ => (),
+    }
 }
