@@ -13,8 +13,10 @@ use utils::{file_reader::FileReader, permutations::generate_permutations};
   Cons:
   - generate_permutations is recurssive
   - we keep all generated permutations in memory simultaneously
+  - we go through all permutations, altrough there a permutation and its reverse have the same length, so we calculate that twice
 
-  subfolder problem_9_1 presents a solution which uses "backtracking", generating only one path at a time
+  subfolder problem_9_1 presents a solution which uses "backtracking", generating only one path at a time.
+  it also tries to optimize by not exploring further pathes that would lead to a reverse of a path already considered.
 */
 
 fn main() {

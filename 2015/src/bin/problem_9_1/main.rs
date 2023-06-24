@@ -19,6 +19,7 @@ struct Path {
     used_destinations: HashSet<usize>, // this dublicates previous path as a form of a set, for fast access of information if destination is already in the path
     length: i32, // this is the length (distance() of the path currently being constructed
     next_index: usize, // next index that needs to be visited. if equals to the amount of destinations, that means that all possibilities has been exausted, so we need to backtrack
+    current_starting_index: usize, // index of the first destination in the current path (or the one with which we will start next, if path is currenty empty)
 }
 
 fn main() {
@@ -64,6 +65,7 @@ fn main() {
         used_destinations: HashSet::new(),
         next_index: 0,
         length: 0,
+        current_starting_index: 0,
     };
 
     // a bit unsafe helper that returns distance between destinations when they are given by their index in "all_destinations" vector
@@ -76,13 +78,40 @@ fn main() {
     };
 
     let update_next_index = |path: &mut Path, starting_index| {
-        path.next_index = amount_of_destinations;
+        path.next_index = amount_of_destinations; // we assume conservatively that next_index cannot be found. we will update this if found
+
+        /*
+         Observation 1 - for any complete path, that path and the "reversed" version of this path (same destinations in the different order) have same length, so we only need to care about one of them.
+
+         Observation 2 - imagine that at any point during the construction of the part that starts with destination IDX we notice that the only unused locations left all have indices smaller than IDX.
+         Then it means any continuation of the path will end in a destination, all pathes startng with which have already been considered.
+         In other words any continuation of the path will be a reverse of the path already considered, hence wont bring anything new.
+         In such a case we dont need to continue the path, so we can set next index to amount_of_destinations (which would lead to backtracking in the next step)
+
+         See below - with given input the body of the main loop below is executed 138 563 times. Without this optimization (i.e. going through all possible pathes) there would be 219 201 loops
+
+         We could take this even further and remember length of all "subpathes" already generated and use them directly whenever we can
+         That would provably save time but use more memory
+        */
+        let mut all_unused_destinations_smaller_than_current_starting = true;
+
+        // note - to save time further we could use "unused destinations" set instead and dynamically remember the biggest index of that set
+        // here we use simpler approach when we check this condinition in a loop every time, which reduces time we saved a little
+        for i in path.current_starting_index..amount_of_destinations {
+            if !path.used_destinations.contains(&i) {
+                all_unused_destinations_smaller_than_current_starting = false
+            }
+        }
+
+        if all_unused_destinations_smaller_than_current_starting {
+            return;
+        }
 
         for i in starting_index..amount_of_destinations {
             if !path.used_destinations.contains(&i) {
                 path.next_index = i;
 
-                break;
+                return;
             }
         }
     };
@@ -96,11 +125,15 @@ fn main() {
         // if after that path is still not empty, adjust its length
         if let Some(new_head) = path.path.front() {
             path.length -= get_distance_by_indices(head, *new_head);
+        } else {
+            path.current_starting_index += 1;
         }
 
         // update next_index - find a next available index after "head" which was just removed
         update_next_index(path, head + 1);
     };
+
+    let mut amount_of_loops = 0;
 
     loop {
         // if we would only be interested in part 1 i.e. the smallest distance, we could backtrack immediately if path gets too big
@@ -109,6 +142,7 @@ fn main() {
 
         //     continue;
         // }
+        amount_of_loops += 1;
 
         // path is finished, update smallest_distance and biggest_distance
         if path.path.len() == amount_of_destinations {
@@ -146,4 +180,6 @@ fn main() {
 
     println!("Smallest distance: {}", smallest_distance); // 251
     println!("Biggest distance: {}", biggest_distance); // 898
+
+    println!("Amount of loops: {}", amount_of_loops); // 138 563. if we would not cut off many pathes using current_starting_index, this would be 219 201
 }

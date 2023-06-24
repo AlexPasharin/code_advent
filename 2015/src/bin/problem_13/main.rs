@@ -8,6 +8,11 @@ use utils::{file_reader::FileReader, permutations::generate_permutations};
 
 use regex::Regex;
 
+/*
+  Here we use simple approach to track all pathes using all permutations, as in problem_9 bin
+  We could certainly also have "more clever" approach used in problem_9_1 bin
+*/
+
 fn main() {
     let re =
         Regex::new(r"^(\S+) would (gain|lose) (\d+) happiness units by sitting next to (\S+).$")
