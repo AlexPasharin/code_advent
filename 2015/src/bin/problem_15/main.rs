@@ -11,14 +11,6 @@ struct Ingridient {
     calories: i32,
 }
 
-// struct Cookie {
-//     capacity: i32,
-//     durability: i32,
-//     flavor: i32,
-//     texture: i32,
-//     calories: i32,
-// }
-
 const SUM: i32 = 100;
 const IDEAL_CALORIES: i32 = 500;
 
@@ -54,8 +46,6 @@ fn main() {
         };
 
         ingridients.push(ingridient);
-
-        // println!("{ingridient_name}: {capacity}, {durability}, {flavor}, {texture}, {calories}");
     });
 
     let amount_of_ingridients = ingridients.len();
@@ -109,23 +99,7 @@ fn main() {
     println!(
         "Max total score with {} calories: {}",
         IDEAL_CALORIES, max_total_score_with_calories
-    );
-    // 117936
-
-    // for i in 0..100 {
-    //   let score =
-    //     for cookie in &ingridients {
-    //         let Ingridient {
-    //             capacity,
-    //             durability,
-    //             flavor,
-    //             texture,
-    //             calories,
-    //         } = cookie;
-
-    //      //   let score = i
-    //     }
-    // }
+    ); // 117936
 }
 
 fn vectors_with_fixed_sum(length: usize, sum: i32) -> Vec<Vec<i32>> {
