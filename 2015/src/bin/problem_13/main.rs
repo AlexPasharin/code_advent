@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use std::{
     cmp::{max, min},
     collections::HashMap,
@@ -28,7 +30,7 @@ fn main() {
 
         let would_lose = &capture_match[2] == "lose";
 
-        let mut happiness_units = *&capture_match[3].parse::<i32>().unwrap();
+        let mut happiness_units = capture_match[3].parse::<i32>().unwrap();
 
         if would_lose {
             happiness_units = -happiness_units;
@@ -144,12 +146,12 @@ fn get_happiness_units(
 
 fn update_happiness_units(
     happiness_units_map: &mut HashMap<String, HashMap<String, i32>>,
-    source: &String,
-    destination: &String,
+    source:  &str,
+    destination: &str,
     new_value: i32,
 ) {
     happiness_units_map
         .get_mut(source)
         .unwrap()
-        .insert(destination.clone(), new_value);
+        .insert(destination.to_owned(), new_value);
 }

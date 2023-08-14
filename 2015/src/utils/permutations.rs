@@ -6,10 +6,10 @@ pub fn generate_permutations<'a, T>(vec: &Vec<&'a T>) -> Vec<Vec<&'a T>> {
 
     let mut result = Vec::new();
 
-    for idx in 0..vec.len() {
+    for (idx, _) in vec.iter().enumerate() {
         let mut smaller_copy = Vec::with_capacity(vec.len() - 1);
 
-        for jdx in 0..vec.len() {
+        for (jdx, _) in vec.iter().enumerate() {
             if idx != jdx {
                 smaller_copy.push(vec[jdx]);
             }

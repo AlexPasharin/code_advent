@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use utils::file_reader::FileReader;
 
 use regex::Regex;
@@ -31,7 +33,7 @@ fn main() {
         result1 += total_area + smallest_side_area;
 
         let mut sides = [length, width, height];
-        sides.sort();
+        sides.sort_unstable(); // unstable sort is more efficient and stability does not matter here
 
         result2 += 2 * (sides[0] + sides[1]) + (length * width * height);
     });

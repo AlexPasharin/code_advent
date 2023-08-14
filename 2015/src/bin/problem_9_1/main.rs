@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use std::{
     cmp::{max, min},
     collections::{HashMap, HashSet, LinkedList},
@@ -38,7 +40,7 @@ fn main() {
         let mut add_distance_to_map = |source: &str, destination: &str| {
             let value = distances
                 .entry(source.to_string())
-                .or_insert_with(|| HashMap::new());
+                .or_insert_with(HashMap::new);
             value.insert(destination.to_string(), distance)
         };
 
@@ -99,7 +101,7 @@ fn main() {
         // here we use simpler approach when we check this condinition in a loop every time, which reduces time we saved a little
         for i in path.current_starting_index..amount_of_destinations {
             if !path.used_destinations.contains(&i) {
-                all_unused_destinations_smaller_than_current_starting = false
+                all_unused_destinations_smaller_than_current_starting = false;
             }
         }
 
@@ -169,7 +171,7 @@ fn main() {
             // update next_index - it is the first destination index which is not visited yet (or amount_of_destinations if all are visited already)
             update_next_index(&mut path, 0);
         // case: this path cannot be continued, since all possibilies has already been explored but path is not empty
-        } else if path.path.len() > 0 {
+        } else if !path.path.is_empty() {
             backtrack(&mut path);
 
         // case: path cannot be continued, since all possibilies has already been explored and path itself is empty

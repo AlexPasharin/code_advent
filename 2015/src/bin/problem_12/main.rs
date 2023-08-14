@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use serde_json::{self, de, Value};
 use std::fs::File;
 use std::io::BufReader;
@@ -14,7 +16,7 @@ fn main() {
     let file_path = "./input/problem_12.txt";
 
     FileReader::process_file(file_path, &mut |ch| {
-        if *ch == '-' {
+        if ch == '-' {
             current_number_is_negative = true;
 
             return;
@@ -29,7 +31,7 @@ fn main() {
 
             if current_number_is_negative {
                 current_number = -current_number;
-                current_number_is_negative = false
+                current_number_is_negative = false;
             }
 
             sum += current_number;
@@ -58,7 +60,7 @@ fn main() {
     }); // 68644
 }
 
-fn update_both_results(val: &Value, result1: &mut f64, result2: &mut Option<&mut f64>) -> () {
+fn update_both_results(val: &Value, result1: &mut f64, result2: &mut Option<&mut f64>) {
     match val {
         Value::Number(n) => {
             let number = n.as_f64().unwrap();

@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use std::collections::VecDeque;
 use utils::file_reader::FileReader;
 
@@ -20,12 +22,11 @@ fn main() {
     assert!(containers.iter().all(|c| *c > 0));
 
     let mut queue = VecDeque::new();
-    let amount_of_containers = containers.len();
 
-    for idx in 0..amount_of_containers {
+    for (idx, container) in containers.iter().enumerate() {
         queue.push_back(ContainersSet {
             indices_used: vec![idx],
-            size: containers[idx],
+            size: *container,
         });
     }
 
@@ -54,11 +55,11 @@ fn main() {
 
         let max_index_used = indices_used.last().unwrap();
 
-        for i in (max_index_used + 1)..amount_of_containers {
+        for (i, container) in containers.iter().enumerate().skip(max_index_used + 1) {
             let mut new_indiced_used = indices_used.clone();
             new_indiced_used.push(i);
 
-            let new_size = size + containers[i];
+            let new_size = size + container;
 
             queue.push_back(ContainersSet {
                 indices_used: new_indiced_used,
@@ -73,7 +74,7 @@ fn main() {
     ); // 1304
 
     println!(
-        "Part 2, ways to get exact eggnog amount with minimal amount f containers: {}",
+        "Part 2, ways to get exact eggnog amount with minimal amount of containers: {}",
         ways_to_get_eggnot_amount_with_minimal_amount
     ); // 18
 }

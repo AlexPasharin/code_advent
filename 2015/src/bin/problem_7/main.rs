@@ -1,3 +1,4 @@
+#![warn(clippy::all, clippy::pedantic)]
 use std::collections::HashMap;
 
 use regex::Regex;
@@ -50,7 +51,7 @@ fn calc_signal_memo(
     let mut value_fn = || {
         let source = wire_data
             .get(wire_name)
-            .expect(&format!("Wire {wire_name} not found from the spec"));
+            .unwrap_or_else(|| panic!("{}", &format!("Wire {wire_name} not found from the spec")));
 
         // if source for wire is a number, return it
         if let Ok(value) = source.parse::<u16>() {
@@ -83,17 +84,17 @@ fn calc_signal_memo(
         let val1 = calc_signal_memo(wire_1, wire_data, wire_values);
         let val2 = calc_signal_memo(wire_2, wire_data, wire_values);
 
-        return match operator {
+        match operator {
             "AND" => val1 & val2,
             "OR" => val1 | val2,
             "LSHIFT" => val1 << val2,
             "RSHIFT" => val1 >> val2,
             _ => panic!("Could not calculate signal"),
-        };
+        }
     };
 
     let value = value_fn();
     wire_values.insert(wire_name.to_string(), value);
 
-    return value;
+    value
 }

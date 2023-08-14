@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use std::collections::{BTreeSet, HashMap, HashSet};
 
 use pathfinding::prelude::astar;
@@ -56,7 +58,7 @@ fn main() {
 
                     let mut replacement = molecule.clone();
 
-                    replacement.replace_range(index..index + part.len(), &substitute);
+                    replacement.replace_range(index..index + part.len(), substitute);
 
                     nghs.insert(replacement);
 
@@ -79,18 +81,18 @@ fn main() {
     let mut generated_molecules_priority_queue = PriorityQueue::new();
     generated_molecules_priority_queue.push(
         part_2_start_str.clone(),
-        Reverse(part_2_start_str.len() as i32),
+        Reverse(part_2_start_str.len()),
     );
 
     let mut generated_molecules = BTreeSet::new();
     let mut distances = HashMap::new();
-    distances.insert(part_2_start_str, 0);
+    distances.insert(part_2_start_str, 0usize);
 
     let target = "e";
 
     while let Some((molecule, _)) = generated_molecules_priority_queue.pop() {
         println!("{}", molecule.len());
-        let distance = distances.get(&molecule).unwrap().clone();
+        let distance = *distances.get(&molecule).unwrap();
 
         if molecule == target {
             println!("Part two answer is {}", distance);
@@ -107,7 +109,7 @@ fn main() {
 
                 let mut replacement = molecule.clone();
 
-                replacement.replace_range(index..index + part.len(), &substitute);
+                replacement.replace_range(index..index + part.len(), substitute);
 
                 if !generated_molecules.contains(&replacement) {
                     nghs.insert(replacement);
@@ -118,12 +120,12 @@ fn main() {
         }
 
         for ngh in nghs {
-            let replacement_current_distance = *(distances.get(&ngh).unwrap_or(&i32::MAX));
+            let replacement_current_distance = *(distances.get(&ngh).unwrap_or(&usize::MAX));
 
-            let replacement_new_distance: i32 = distance + 1;
+            let replacement_new_distance = distance + 1;
 
             if replacement_new_distance < replacement_current_distance {
-                let len = ngh.len() as i32;
+                let len = ngh.len();
 
                 distances.insert(ngh.clone(), replacement_new_distance);
 

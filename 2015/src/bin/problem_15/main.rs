@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use std::cmp::max;
 
 use regex::Regex;
@@ -121,5 +123,5 @@ fn vectors_with_fixed_sum(length: usize, sum: i32) -> Vec<Vec<i32>> {
         result.extend_from_slice(&partial_result);
     }
 
-    return result;
+  result
 }

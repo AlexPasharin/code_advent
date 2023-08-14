@@ -1,3 +1,4 @@
+#![warn(clippy::all, clippy::pedantic)]
 use md5::{compute, Digest};
 
 // NOTE: run in release mode. much slower in debug mode.
@@ -31,11 +32,11 @@ fn main() {
 fn starts_with_five_zeroes(digest: Digest) -> bool {
     let result = digest.0;
 
-    return result[0] == 0 && result[1] == 0 && result[2] < 16;
+    result[0] == 0 && result[1] == 0 && result[2] < 16
 }
 
 fn starts_with_six_zeroes(digest: Digest) -> bool {
     let result = digest.0;
 
-    return result[0] == 0 && result[1] == 0 && result[2] == 0;
+    result[0] == 0 && result[1] == 0 && result[2] == 0
 }

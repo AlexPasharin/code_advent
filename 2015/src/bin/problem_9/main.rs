@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use regex::Regex;
 use std::{
     cmp::{max, min},
@@ -35,7 +37,7 @@ fn main() {
         let mut add_distance_to_map = |source: &str, destination: &str| {
             let value = distances
                 .entry(String::from(source))
-                .or_insert_with(|| HashMap::new());
+                .or_insert_with(HashMap::new);
             value.insert(String::from(destination), distance)
         };
 

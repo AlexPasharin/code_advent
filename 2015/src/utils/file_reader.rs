@@ -36,7 +36,7 @@ impl FileReader {
 
     pub fn process_file<F>(file_path: &str, cb: &mut F)
     where
-        F: FnMut(&char),
+        F: FnMut(char),
     {
         let mut reader = FileReader::new(file_path);
         reader.process_all(cb);
@@ -44,19 +44,19 @@ impl FileReader {
 
     pub fn process_all<F>(&mut self, cb: &mut F)
     where
-        F: FnMut(&char),
+        F: FnMut(char),
     {
         while let Some(ch) = self.read_next() {
-            cb(&ch);
+            cb(ch);
         }
     }
 
     pub fn process_until<F>(&mut self, cb: &mut F)
     where
-        F: FnMut(&char) -> bool,
+        F: FnMut(char) -> bool,
     {
         while let Some(ch) = self.read_next() {
-            if cb(&ch) {
+            if cb(ch) {
                 break;
             }
         }

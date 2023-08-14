@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use regex::Regex;
 use utils::file_reader::FileReader;
 

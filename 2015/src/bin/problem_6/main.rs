@@ -1,10 +1,13 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use regex::Regex;
 use utils::file_reader::FileReader;
 
 fn main() {
+    const SIZE: usize = 1000;
+
     let re = Regex::new(r"^(turn on|turn off|toggle) (\d+),(\d+) through (\d+),(\d+)$").unwrap();
 
-    const SIZE: usize = 1000;
     // points vector contains pair, first pais is boolean if the light is on (according to part 1 setup), second is brightness (according to part 2 setup)
     let mut points = vec![[(false, 0usize); SIZE]; SIZE]; // cant use [[false; 1000]; 1000]; cause it will allocate on the stack, which will overflow for such a big array
 
@@ -18,12 +21,12 @@ fn main() {
         let corner2 = parse_corner_coordinates(&capture_match[4], &capture_match[5]);
 
         let mut corners_x_coords = [corner1.0, corner2.0];
-        corners_x_coords.sort();
+        corners_x_coords.sort_unstable();
 
         let [x_min, x_max] = corners_x_coords;
 
         let mut corners_y_coords = [corner1.1, corner2.1];
-        corners_y_coords.sort();
+        corners_y_coords.sort_unstable();
 
         let [y_min, y_max] = corners_y_coords;
 
@@ -56,7 +59,7 @@ fn main() {
                 amount_of_lights_part1 += 1;
             }
 
-            amount_of_lights_part2 += amount_of_light
+            amount_of_lights_part2 += amount_of_light;
         }
     }
 

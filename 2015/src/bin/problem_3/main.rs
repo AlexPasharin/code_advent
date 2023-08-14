@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use std::collections::HashSet;
 use utils::file_reader::FileReader;
 

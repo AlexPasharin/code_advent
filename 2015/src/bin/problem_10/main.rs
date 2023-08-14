@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 fn main() {
     let input = "3113322113";
 
@@ -11,7 +13,7 @@ fn main() {
             input_digits = next_game_iteration(&input_digits);
         }
 
-        return input_digits.len();
+        input_digits.len()
     };
 
     let result = play_game(40);

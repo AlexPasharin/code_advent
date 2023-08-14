@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use utils::file_reader::FileReader;
 
 const GRID_SIDE_SIZE: usize = 100;
@@ -38,18 +40,22 @@ fn main() {
         lights_grid_part_2[GRID_SIDE_SIZE - 1][GRID_SIDE_SIZE - 1] = true;
     }
 
-    let lights_on_part_1 = lights_grid_part_1.iter().flatten().filter(|x| **x).count();
-    let lights_on_part_2 = lights_grid_part_2.iter().flatten().filter(|x| **x).count();
+    let lights_on_part_1 = amount_of_lights_on(&lights_grid_part_1);
+    let lights_on_part_2 = amount_of_lights_on(&lights_grid_part_2);
 
     println!(
         "Part 1, lights on after 100 iterations: {}",
-        lights_on_part_1
+        lights_on_part_1 // 814
     );
 
     println!(
         "Part 2, lights on after 100 iterations: {}",
-        lights_on_part_2
+        lights_on_part_2 // 924
     );
+}
+
+fn amount_of_lights_on(grid: &LightGrid) -> usize {
+     grid.iter().flatten().filter(|x| **x).count()
 }
 
 fn next_light_grid(light_grid: LightGrid) -> LightGrid {
@@ -78,21 +84,12 @@ fn next_light_grid(light_grid: LightGrid) -> LightGrid {
             }
 
             if light_grid[i][j] {
-                next_grid[i][j] =
-                    if amount_of_lit_neightbourhs == 2 || amount_of_lit_neightbourhs == 3 {
-                        true
-                    } else {
-                        false
-                    }
+                next_grid[i][j] = amount_of_lit_neightbourhs == 2 || amount_of_lit_neightbourhs == 3;
             } else {
-                next_grid[i][j] = if amount_of_lit_neightbourhs == 3 {
-                    true
-                } else {
-                    false
-                }
+                next_grid[i][j] = amount_of_lit_neightbourhs == 3;
             }
         }
     }
 
-    return next_grid;
+    next_grid
 }

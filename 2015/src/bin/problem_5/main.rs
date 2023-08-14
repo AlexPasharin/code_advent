@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use std::collections::{HashMap, HashSet};
 use utils::file_reader::FileReader;
 
@@ -8,7 +10,7 @@ fn main() {
     FileReader::process_lines("./input/problem_5.txt", &mut |line| {
         let chars: Vec<char> = line.chars().collect();
 
-        let prev = chars.get(0);
+        let prev = chars.first();
 
         match prev {
             None => return,
@@ -51,7 +53,7 @@ fn main() {
                             different_letter_pairs.insert(consecutive_pair);
 
                             contains_forbidden_pair =
-                                contains_forbidden_pair || char_pair_is_forbidden(prev, curr)
+                                contains_forbidden_pair || char_pair_is_forbidden(prev, curr);
                         }
                     }
 
@@ -59,7 +61,7 @@ fn main() {
                         let prev_prev = *chars.get(current_index - 2).unwrap();
 
                         contains_letter_between_same_letters =
-                            contains_letter_between_same_letters || prev_prev == curr
+                            contains_letter_between_same_letters || prev_prev == curr;
                     }
 
                     prev = curr;
