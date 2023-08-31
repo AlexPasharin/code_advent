@@ -19,7 +19,7 @@ use utils::file_reader::FileReader;
 struct Path {
     path: LinkedList<usize>, // path currently being constructed. we always add new destinations to the beginning of the list
     used_destinations: HashSet<usize>, // this dublicates previous path as a form of a set, for fast access of information if destination is already in the path
-    length: i32, // this is the length (distance() of the path currently being constructed
+    length: i32, // this is the length (distance) of the path currently being constructed
     next_index: usize, // next index that needs to be visited. if equals to the amount of destinations, that means that all possibilities has been exausted, so we need to backtrack
     current_starting_index: usize, // index of the first destination in the current path (or the one with which we will start next, if path is currenty empty)
 }

@@ -17,7 +17,7 @@ fn main() {
     let mut santa_turn = true; // for part 2, true if Santa turn, RoboSanta turn otherwise
 
     FileReader::process_file("./input/problem_3.txt", &mut |ch| {
-        let mut second_year_point = if santa_turn { &mut p2 } else { &mut p3 };
+        let second_year_point = if santa_turn { &mut p2 } else { &mut p3 };
 
         match ch {
             '>' => {
