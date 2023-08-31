@@ -98,6 +98,21 @@ struct Path {
 }
 
 fn main() {
+    let minimal_winning_cost_easy_mode = game_simulation(false);
+    let minimal_winning_cost_difficult_mode = game_simulation(true);
+
+    println!(
+        "Minimal winning cost, part 1: {}",
+        minimal_winning_cost_easy_mode
+    ); // 1269
+
+    println!(
+        "Minimal winning cost, part 2: {}",
+        minimal_winning_cost_difficult_mode
+    ); // 1309
+}
+
+fn game_simulation(difficult_mode: bool) -> i32 {
     let mut minimal_winning_cost = i32::MAX;
 
     let initial_state = State {
@@ -120,6 +135,18 @@ fn main() {
         match latest_state {
             None => break, // no more states
             Some(state) => {
+                let mut next_player_hit_points = state.player_hit_points;
+
+                if difficult_mode {
+                    next_player_hit_points -= 1;
+
+                    if next_player_hit_points <= 0 {
+                        // player loses immediately in the difficult mode
+                        backtrack(&mut current_path);
+                        continue;
+                    }
+                }
+
                 let next_spell_idx = state.next_spell_idx;
 
                 if next_spell_idx >= SPELLS_AMOUNT {
@@ -156,38 +183,40 @@ fn main() {
                 }
 
                 let mut next_boss_hit_points = state.boss_hit_points - spell.damage;
-                let mut next_player_hit_points = state.player_hit_points + spell.heals;
+                next_player_hit_points += spell.heals;
                 let mut next_mana = state.mana - spell.cost;
 
-                // apply effects for player's turn
-                for effect in &state.effects {
-                    match effect.effect_type {
-                        EffectType::Shield => {}
-                        EffectType::Poison => {
-                            next_boss_hit_points -= 3;
-                        }
-                        EffectType::Recharge => next_mana += 101,
-                    }
-                }
+                // apply effects, at the same time form new effect by
+                // adjusting effects count, through away expired ones
+                let mut apply_effects = |effects: &Vec<Effect>| -> Vec<_> {
+                    effects
+                        .iter()
+                        .filter_map(|f| {
+                            match f.effect_type {
+                                EffectType::Shield => {}
+                                EffectType::Poison => {
+                                    next_boss_hit_points -= 3;
+                                }
+                                EffectType::Recharge => next_mana += 101,
+                            }
 
-                // adjust effects count, through away expired ones
-                let mut new_effects: Vec<_> = state
-                    .effects
-                    .iter()
-                    .filter_map(|f| {
-                        let new_count = f.count - 1;
+                            let new_count = f.count - 1;
 
-                        if new_count > 0 {
-                            Some(Effect {
-                                count: new_count,
-                                effect_type: f.effect_type,
-                                index: f.index,
-                            })
-                        } else {
-                            None
-                        }
-                    })
-                    .collect();
+                            if new_count > 0 {
+                                Some(Effect {
+                                    count: new_count,
+                                    effect_type: f.effect_type,
+                                    index: f.index,
+                                })
+                            } else {
+                                None
+                            }
+                        })
+                        .collect()
+                };
+
+                // apply effects and get new ones for player's turn
+                let mut new_effects = apply_effects(&state.effects);
 
                 // if cast spell has effect, add it to effects. it will start effecting starting from the next turn (boss' turn)
                 if let Some(effect) = &spell.effect {
@@ -196,29 +225,21 @@ fn main() {
 
                 // boss turn
 
-                // start by applying effects
-                for effect in &new_effects {
-                    match effect.effect_type {
-                        EffectType::Shield => {}
-                        EffectType::Poison => {
-                            next_boss_hit_points -= 3;
-                        }
-                        EffectType::Recharge => next_mana += 101,
-                    }
-                }
+                // calculate if player has armor at the moment. this depends on current effects, so needs to be done before we mutate as a side effect of applying them later
+                let player_has_armor = new_effects
+                    .iter()
+                    .any(|effect| effect.effect_type == EffectType::Shield);
+
+                // apply effects and get new ones for boss's turn
+                new_effects = apply_effects(&new_effects);
 
                 // check if boss lost the game - either as a result of player's turn of applying new effects in the start of the boss turn
                 if next_boss_hit_points <= 0 {
-                    // println!("Player won");
                     minimal_winning_cost = new_cost;
 
                     backtrack(&mut current_path);
                     continue;
                 }
-
-                let player_has_armor = new_effects
-                    .iter()
-                    .any(|effect| effect.effect_type == EffectType::Shield);
 
                 let player_armor = if player_has_armor { 7 } else { 0 };
                 let damage_by_boss = std::cmp::max(BOSS_DAMAGE - player_armor, 1);
@@ -229,24 +250,6 @@ fn main() {
                     backtrack(&mut current_path);
                     continue;
                 }
-
-                // adjust effects count, through away expired ones
-                new_effects = new_effects
-                    .iter()
-                    .filter_map(|f| {
-                        let new_count = f.count - 1;
-
-                        if new_count > 0 {
-                            Some(Effect {
-                                count: new_count,
-                                effect_type: f.effect_type,
-                                index: f.index,
-                            })
-                        } else {
-                            None
-                        }
-                    })
-                    .collect();
 
                 // add new spell to path as a new state and adjust path's cost
                 let next_state = State {
@@ -264,7 +267,7 @@ fn main() {
         }
     }
 
-    println!("Minimal winning cost: {}", minimal_winning_cost); // 1269
+    return minimal_winning_cost;
 }
 
 // remove current head, retract its transition cost from the path, and adjust new head's next_spell_idx
