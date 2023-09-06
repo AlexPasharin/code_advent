@@ -70,62 +70,11 @@ fn main() {
         instructions.push(instruction);
     });
 
-    let mut instruction_ptr = 0;
+    let part_1_result = apply_all_instructions([0, 0], &instructions);
+    let part_2_result = apply_all_instructions([1, 0], &instructions);
 
-    let mut registers = [0, 0];
-
-    while instruction_ptr < instructions.len() as i32 {
-        let instruction = &instructions[instruction_ptr as usize];
-
-        match instruction.instruction_type {
-            InstructionType::HLF => {
-                let register = instruction.register.as_ref().unwrap();
-                apply_to_register(&mut registers, register, |x| x / 2);
-
-                instruction_ptr += 1;
-            }
-            InstructionType::TPL => {
-                let register = instruction.register.as_ref().unwrap();
-                apply_to_register(&mut registers, register, |x| x * 3);
-
-                instruction_ptr += 1;
-            }
-            InstructionType::INC => {
-                let register = instruction.register.as_ref().unwrap();
-                apply_to_register(&mut registers, register, |x| x + 1);
-
-                instruction_ptr += 1;
-            }
-            InstructionType::JMP => {
-                let offset = instruction.offset.unwrap();
-                instruction_ptr += offset;
-            }
-            InstructionType::JIE => {
-                let register = instruction.register.as_ref().unwrap();
-                let register_value = registers[register_to_index(register) as usize];
-
-                if register_value % 2 == 0 {
-                    let offset = instruction.offset.unwrap();
-                    instruction_ptr += offset;
-                } else {
-                    instruction_ptr += 1;
-                }
-            }
-            InstructionType::JIO => {
-                let register = instruction.register.as_ref().unwrap();
-                let register_value = registers[register_to_index(register) as usize];
-
-                if register_value == 1 {
-                    let offset = instruction.offset.unwrap();
-                    instruction_ptr += offset;
-                } else {
-                    instruction_ptr += 1;
-                }
-            }
-        }
-    }
-
-    println!("Value of b in the end: {}", registers[1]); // 307
+    println!("Value of b in the end: {}", part_1_result); // 307
+    println!("Value of b in the end: {}", part_2_result); // 160
 }
 
 fn offset_str_to_offset(offset_str: &str) -> i32 {
@@ -139,14 +88,76 @@ fn offset_str_to_offset(offset_str: &str) -> i32 {
     }
 }
 
-fn register_to_index(register: &Register) -> i32 {
+fn apply_all_instructions(mut registers: [i32; 2], instructions: &Vec<Instruction>) -> i32 {
+    let mut instruction_ptr = 0;
+
+    while instruction_ptr < instructions.len() as i32 {
+        let instruction = &instructions[instruction_ptr as usize];
+
+        match instruction.instruction_type {
+            InstructionType::HLF => {
+                apply_to_register(&mut registers, instruction, &mut instruction_ptr, |x| x / 2);
+            }
+            InstructionType::TPL => {
+                apply_to_register(&mut registers, instruction, &mut instruction_ptr, |x| x * 3);
+            }
+            InstructionType::INC => {
+                apply_to_register(&mut registers, instruction, &mut instruction_ptr, |x| x + 1);
+            }
+            InstructionType::JMP => {
+                let offset = instruction.offset.unwrap();
+                instruction_ptr += offset;
+            }
+            InstructionType::JIE => {
+                jump_conditionally(&mut registers, instruction, &mut instruction_ptr, |x| {
+                    x % 2 == 0
+                });
+            }
+            InstructionType::JIO => {
+                jump_conditionally(&mut registers, instruction, &mut instruction_ptr, |x| {
+                    x == 1
+                });
+            }
+        }
+    }
+
+    registers[1]
+}
+
+fn register_to_index(instruction: &Instruction) -> usize {
+    let register = instruction.register.as_ref().unwrap();
+
     match register {
         Register::A => 0,
         Register::B => 1,
     }
 }
 
-fn apply_to_register(registers: &mut [i32; 2], register: &Register, cb: impl FnOnce(i32) -> i32) {
-    let index = register_to_index(register);
-    registers[index as usize] = cb(registers[index as usize]);
+fn apply_to_register(
+    registers: &mut [i32; 2],
+    instruction: &Instruction,
+    instruction_ptr: &mut i32,
+    cb: impl FnOnce(i32) -> i32,
+) {
+    let index = register_to_index(instruction);
+    registers[index] = cb(registers[index]);
+
+    (*instruction_ptr) += 1;
+}
+
+fn jump_conditionally(
+    registers: &mut [i32; 2],
+    instruction: &Instruction,
+    instruction_ptr: &mut i32,
+    cb: impl FnOnce(i32) -> bool,
+) {
+    let register_value = registers[register_to_index(instruction)];
+
+    let offset = if cb(register_value) {
+        instruction.offset.unwrap()
+    } else {
+        1
+    };
+
+    (*instruction_ptr) += offset;
 }
